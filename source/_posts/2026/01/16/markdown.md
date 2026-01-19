@@ -4,6 +4,21 @@ date: 2026-01-16 21:43:02
 tags:
 ---
 
+{% mermaid graph TD %}
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+{% endmermaid %}
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
 note、label、button 和 tabs
 
 <!-- more -->
@@ -42,17 +57,17 @@ note、label、button 和 tabs
 
 # Label
 
-{% label default @markdown 標籤 %}
+{% label default @default %}
 
-{% label primary @markdown 標籤 %}
+{% label primary @primary %}
 
-{% label success @markdown 標籤 %}
+{% label success @success %}
 
-{% label info @markdown 標籤 %}
+{% label info @info %}
 
-{% label warning @markdown 標籤 %}
+{% label warning @warning %}
 
-{% label danger @markdown 標籤 %}
+{% label danger @danger %}
 
 # Tabs
 

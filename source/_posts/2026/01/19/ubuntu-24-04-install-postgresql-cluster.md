@@ -6,65 +6,76 @@ tags:
 date: 2026-01-19 18:20:34
 ---
 
+{% note info %}
 
-# 虛擬機
+### 虛擬機
+
+{% endnote %}
 
 <table>
-    <tr>
+    <tr align="center">
         <th>HostName</th>
         <th>IP Address</th>
-        <th>備註</th>
+        <th>安裝項目</th>
+        <th>Virtual IP</th>
     </tr>
-    <tr>
+    <tr align="center">
         <td>pgha-01</td>
         <td>172.30.1.211</td>
-        <td rowspan="3">
+        <td rowspan="3" align="left">
             <ul>
-                <li>HA Proxy</li>
-                <li>keepalived</li>
-                <li>Virtual IP: 172.30.1.220</li>
+                <li>HAProxy</li>
+                <li>Keepalived</li>
             </ul>
         </td>
+        <td rowspan="3" align="center">Virtual IP: 172.30.1.220</td>
     </tr>
-    <tr>
+    <tr align="center">
         <td>pgha-02</td>
         <td>172.30.1.212</td>
     </tr>
-    <tr>
+    <tr align="center">
         <td>pgha-03</td>
         <td>172.30.1.213</td>
     </tr>
 </table>
 
 <table>
-    <tr>
+    <tr align="center">
         <th>HostName</th>
         <th>IP Address</th>
-        <th>備註</th>
+        <th>安裝項目</th>
+        <th>Virtual IP</th>
     </tr>
-    <tr>
+    <tr align="center">
         <td>pgsql-01</td>
         <td>172.30.1.221</td>
-        <td rowspan="3">
+        <td rowspan="3" align="left">
             <ul>
                 <li>etcd</li>
                 <li>Patroni</li>
                 <li>PostgresSQL</li>
-                <li>Virtual IP: 172.30.1.221</li>
             </ul>
         </td>
+        <td rowspan="3" align="center">
+            Virtual IP: 172.30.1.221
+            </td>
     </tr>
-    <tr>
+    <tr align="center">
         <td>pgsql-02</td>
         <td>172.30.1.222</td>
     </tr>
-    <tr>
+    <tr align="center">
         <td>pgsql-03</td>
         <td>172.30.1.223</td>
     </tr>
 </table>
 
-# PostgresSQL
+{% note info %}
+
+### PostgresSQL
+
+{% endnote %}
 
 ```bash pgsql 各主機安裝 postgresql、postgresql-client
 sudo apt install -y postgresql-common
@@ -80,9 +91,13 @@ sudo systemctl disable postgresql
 sudo systemctl disable --now postgresql
 ```
 
-# etcd
+{% note info %}
 
-#### 安裝 etcd
+### etcd
+
+{% endnote %}
+
+#### <i class="fa-solid fa-gear"></i> 安裝 etcd
 
 ```bash pgsql 各主機安裝 etcd
 wget https://github.com/etcd-io/etcd/releases/download/v3.6.7/etcd-v3.6.7-linux-amd64.tar.gz
@@ -97,7 +112,7 @@ etcdctl version
 sudo useradd --system --home /var/lib/etcd --shell /bin/false etcd
 ```
 
-#### 憑證 (Certificates)
+#### <i class="fa-solid fa-gear"></i> 憑證 (Certificates)
 
 在使用者本機建立憑證
 
@@ -239,7 +254,11 @@ sudo mv /tmp/ca.crt /etc/etcd/ssl/
 sudo chown -R etcd:etcd /etc/etcd/
 sudo chmod 600 /etc/etcd/ssl/pgsql-01.key
 sudo chmod 644 /etc/etcd/ssl/pgsql-01.crt /etc/etcd/ssl/ca.crt
+```
 
+#### <i class="fa-solid fa-gear"></i> 設定
+
+```bash
 sudo nano /etc/etcd/etcd.env
 ```
 
@@ -275,7 +294,9 @@ sudo mv /tmp/ca.crt /etc/etcd/ssl/
 sudo chown -R etcd:etcd /etc/etcd/
 sudo chmod 600 /etc/etcd/ssl/pgsql-02.key
 sudo chmod 644 /etc/etcd/ssl/pgsql-02.crt /etc/etcd/ssl/ca.crt
+```
 
+```bash
 sudo nano /etc/etcd/etcd.env
 ```
 
@@ -311,7 +332,9 @@ sudo mv /tmp/ca.crt /etc/etcd/ssl/
 sudo chown -R etcd:etcd /etc/etcd/
 sudo chmod 600 /etc/etcd/ssl/pgsql-03.key
 sudo chmod 644 /etc/etcd/ssl/pgsql-03.crt /etc/etcd/ssl/ca.crt
+```
 
+```bash
 sudo nano /etc/etcd/etcd.env
 ```
 
@@ -337,11 +360,177 @@ ETCD_PEER_KEY_FILE="/etc/etcd/ssl/pgsql-03.key"
 <!-- endtab -->
 {% endtabs %}
 
-# Patroni
+#### <i class="fa-solid fa-gear"></i> Create etcd service
 
-# HA Proxy
+```bash
+sudo nano /etc/systemd/system/etcd.service
+```
 
-# keepalived
+```bash
+[Unit]
+Description=etcd key-value store
+Documentation=https://github.com/etcd-io/etcd
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+WorkingDirectory=/var/lib/etcd
+EnvironmentFile=/etc/etcd/etcd.env
+ExecStart=/usr/local/bin/etcd
+Restart=always
+RestartSec=10s
+LimitNOFILE=40000
+User=etcd
+Group=etcd
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# create a directory for ETCD_DATA_DIR
+sudo mkdir -p /var/lib/etcd 
+sudo chown -R etcd:etcd /var/lib/etcd
+
+# Reload daemon and enable the service
+sudo systemctl daemon-reload
+sudo systemctl enable etcd
+
+# Start etcd and check status
+sudo systemctl start etcd
+sudo systemctl status etcd
+```
+
+{% note info %}
+
+### Patroni
+
+{% endnote %}
+
+#### <i class="fa-solid fa-gear"></i> Installing Patroni
+
+```bash
+sudo apt install -y patroni
+sudo mkdir -p /etc/patroni/
+```
+
+#### <i class="fa-solid fa-gear"></i> Configuring Patroni
+
+```bash
+sudo nano /etc/patroni/config.yml
+```
+
+#### <i class="fa-solid fa-gear"></i> PostgreSQL Certificates
+
+```bash
+openssl genrsa -out server.key 2048 # private key
+openssl req -new -key server.key -out server.req # csr
+openssl req -x509 -key server.key -in server.req -out server.crt -days 7300 # generate cert, valid for 20 years
+chmod 600 server.key
+
+scp server.crt server.key server.req pguser@172.30.1.221:/tmp
+scp server.crt server.key server.req pguser@172.30.1.222:/tmp
+scp server.crt server.key server.req pguser@172.30.1.223:/tmp
+```
+
+```bash
+sudo mkdir -p /var/lib/postgresql/data
+sudo mkdir -p /var/lib/postgresql/ssl
+
+cd /tmp
+sudo mv server.crt server.key server.req /var/lib/postgresql/ssl
+
+sudo chmod 600 /var/lib/postgresql/ssl/server.key
+sudo chmod 644 /var/lib/postgresql/ssl/server.crt
+sudo chmod 600 /var/lib/postgresql/ssl/server.req
+sudo chown postgres:postgres /var/lib/postgresql/data
+sudo chown postgres:postgres /var/lib/postgresql/ssl/server.*
+
+sudo apt update
+sudo apt install -y acl
+```
+
+{% tabs Tabs3, 1 %}
+<!-- tab pgsql-01@fa-solid fa-file-code -->
+```bash
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/ca.crt
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/pgsql-01.crt
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/pgsql-01.key
+```
+<!-- endtab -->
+<!-- tab pgsql-02 @fa-solid fa-file-code-->
+```bash
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/ca.crt
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/pgsql-02.crt
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/pgsql-02.key
+```
+<!-- endtab -->
+<!-- tab pgsql-03@fa-solid fa-file-code -->
+```bash
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/ca.crt
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/pgsql-03.crt
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/pgsql-03.key
+```
+<!-- endtab -->
+{% endtabs %}
+
+```bash
+sudo sh -c 'cat /var/lib/postgresql/ssl/server.crt /var/lib/postgresql/ssl/server.key > /var/lib/postgresql/ssl/server.pem'
+sudo chown postgres:postgres /var/lib/postgresql/ssl/server.pem
+sudo chmod 600 /var/lib/postgresql/ssl/server.pem
+
+sudo openssl x509 -in /var/lib/postgresql/ssl/server.pem -text -noout
+```
+
+#### <i class="fa-solid fa-gear"></i> Starting Patroni and HA Cluster
+
+```bash
+sudo systemctl restart patroni
+journalctl -u patroni -f
+```
+
+#### <i class="fa-solid fa-gear"></i> Reconfiguring our etcd Cluster
+
+```bash
+sudo nano /etc/etcd/etcd.env
+```
+
+```bash
+# change
+ETCD_INITIAL_CLUSTER_STATE="new"
+
+# to
+ETCD_INITIAL_CLUSTER_STATE="existing"
+```
+
+#### <i class="fa-solid fa-gear"></i> Verifying Our Postgres Cluster
+
+```bash
+curl -k https://172.30.1.221:8008/primary
+curl -k https://172.30.1.222:8008/primary
+curl -k https://172.30.1.223:8008/primary
+```
+
+```bash show config
+sudo patronictl -c /etc/patroni/config.yml show-config
+```
+
+```bash edit config
+sudo patronictl -c /etc/patroni/config.yml edit-config
+```
+
+{% note info %}
+
+### HAProxy
+
+{% endnote %}
+
+{% note info %}
+
+### Keepalived
+
+{% endnote %}
 
 參考連結：
 
