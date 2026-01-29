@@ -436,7 +436,7 @@ sudo nano /etc/patroni/config.yml
 
 {% tabs Tabs3, 1 %}
 <!-- tab pgsql-01@fa-solid fa-file-code -->
-```conf
+{% codeblock config.yml lang:yml mark:1,3,6,9,10,14,40-42,53,58,59,61,62 %}
 scope: postgresql-cluster
 namespace: /service/
 name: pgsql-01  # node1
@@ -507,10 +507,10 @@ tags:
   nofailover: false
   noloadbalance: false
   clonefrom: false
-```
+{% endcodeblock %}
 <!-- endtab -->
 <!-- tab pgsql-02 @fa-solid fa-file-code-->
-```bash
+{% codeblock config.yml lang:yml mark:1,3,6,9,10,14,40-42,53,58,59,61,62 %}
 scope: postgresql-cluster
 namespace: /service/
 name: pgsql-02  # node2
@@ -581,10 +581,10 @@ tags:
   nofailover: false
   noloadbalance: false
   clonefrom: false
-```
+{% endcodeblock %}
 <!-- endtab -->
 <!-- tab pgsql-03@fa-solid fa-file-code -->
-```bash
+{% codeblock config.yml lang:yml mark:1,3,6,9,10,14,40-42,53,58,59,61,62 %}
 scope: postgresql-cluster
 namespace: /service/
 name: pgsql-03  # node3
@@ -655,7 +655,7 @@ tags:
   nofailover: false
   noloadbalance: false
   clonefrom: false
-```
+{% endcodeblock %}
 <!-- endtab -->
 {% endtabs %}
 
@@ -878,7 +878,7 @@ sudo nano /etc/keepalived/keepalived.conf
 
 {% tabs Tabs5, 1 %}
 <!-- tab pgsql-01@fa-solid fa-file-code -->
-```conf
+{% codeblock keepalived.conf lang:conf mark:14-17,20,21,24 %}
 global_defs {
     enable_script_security
     script_user keepalived_script
@@ -892,26 +892,26 @@ vrrp_script check_haproxy {
 }
 
 vrrp_instance VI_1 {
-    state MASTER
+    state MASTER # change
     interface eth0 # update with your nic
-    virtual_router_id 51
-    priority 100
+    virtual_router_id 51 # change
+    priority 100 # change
     advert_int 1
     authentication {
-        auth_type PASS
+        auth_type PASS # change
         auth_pass "!QAZ2wsx" # change
     }
     virtual_ipaddress {
-        172.30.1.220
+        172.30.1.220 # change
     }
     track_script {
         check_haproxy
     }
 }
-```
+{% endcodeblock %}
 <!-- endtab -->
 <!-- tab pgsql-02 @fa-solid fa-file-code-->
-```conf
+{% codeblock keepalived.conf lang:conf mark:14-17,20,21,24 %}
 global_defs {
     enable_script_security
     script_user keepalived_script
@@ -925,26 +925,26 @@ vrrp_script check_haproxy {
 }
 
 vrrp_instance VI_1 {
-    state BACKUP
+    state BACKUP # change
     interface eth0 # update with your nic
-    virtual_router_id 51
-    priority 90
+    virtual_router_id 51 # change
+    priority 90 # change
     advert_int 1
     authentication {
         auth_type PASS # change
         auth_pass "!QAZ2wsx" # change
     }
     virtual_ipaddress {
-        172.30.1.220
+        172.30.1.220 # change
     }
     track_script {
         check_haproxy
     }
 }
-```
+{% endcodeblock %}
 <!-- endtab -->
 <!-- tab pgsql-03@fa-solid fa-file-code -->
-{% codeblock keepalived.conf lang:conf mark:16,17,20,21,24 %}
+{% codeblock keepalived.conf lang:conf mark:14-17,20,21,24 %}
 global_defs {
     enable_script_security
     script_user keepalived_script
@@ -958,17 +958,17 @@ vrrp_script check_haproxy {
 }
 
 vrrp_instance VI_1 {
-    state BACKUP
+    state BACKUP # change
     interface eth0 # update with your nic
-    virtual_router_id 51
-    priority 80
+    virtual_router_id 51 # change
+    priority 80 # change
     advert_int 1
     authentication {
         auth_type PASS # change
         auth_pass "!QAZ2wsx" # change
     }
     virtual_ipaddress {
-        172.30.1.220
+        172.30.1.220 # change
     }
     track_script {
         check_haproxy
