@@ -3,6 +3,8 @@ title: Ubuntu 24.04 Install PostgreSQL Cluster
 tags:
   - Database
   - PostgreSQL
+categories:
+  - Database
 date: 2026-01-19 18:20:34
 ---
 
@@ -10,7 +12,7 @@ date: 2026-01-19 18:20:34
 ## 虛擬機
 {% endnote %}
 
-#### <span style="color: #0088FF;">HAProxy</span>
+**<span style="color: #0088FF;">HAProxy</span>**
 <table style="table-layout: fixed; width: 400px;">
     <tr align="center">
         <th style="width: 100px;" align="center">HostName</th>
@@ -37,7 +39,7 @@ date: 2026-01-19 18:20:34
     </tr>
 </table>
 
-#### <span style="color: #0088FF;">PostgreSQL</span>
+**<span style="color: #0088FF;">PostgreSQL</span>**
 
 <table style="table-layout: fixed; width: 600px;">
     <tr align="center">
@@ -430,6 +432,8 @@ sudo patronictl -c /etc/patroni/config.yml edit-config
 sudo apt install -y pgbouncer
 ```
 
+#### <span style="color: #0088FF;">設定</span>
+
 ```bash
 sudo nano /etc/pgbouncer/pgbouncer.ini
 ```
@@ -547,3 +551,16 @@ sudo rm -rf /var/lib/postgresql/data/*
 
 sudo setfacl -m u:postgres:r /etc/etcd/ssl/*
 ```
+
+---
+
+{% note info %}
+## 參考連結
+{% endnote %}
+
+* [PostgresSQL Clustering the hard way][1]
+* [Building a Highly Available PostgreSQL Cluster with Patroni, etcd, and PgBouncer][2]
+
+[1]: https://technotim.com/posts/postgresql-high-availability/#configuring-patroni "PostgresSQL Clustering the hard way"
+
+[2]: https://medium.com/@yahya.muhaned/building-a-highly-available-postgresql-cluster-with-patroni-etcd-and-pgbouncer-f8e363342bf4 "Building a Highly Available PostgreSQL Cluster with Patroni, etcd, and PgBouncer"
