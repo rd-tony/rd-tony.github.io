@@ -44,7 +44,7 @@ date: 2026-01-19 18:20:34
         <th style="width: 100px;" align="center">HostName</th>
         <th style="width: 100px;" align="center">IP Address</th>
         <th style="width: 150px;" align="center">安裝項目</th>
-        <th style="width: 150px;" align="center">Virtual IP</th>
+        <th style="width: 250px;" align="center">Virtual IP</th>
     </tr>
     <tr align="center">
         <td align="center">pgsql-01</td>
@@ -53,6 +53,7 @@ date: 2026-01-19 18:20:34
             <ul>
                 <li>etcd</li>
                 <li>Patroni</li>
+                <li>PgBouncer</li>
                 <li>PostgresSQL</li>
             </ul>
         </td>
@@ -420,6 +421,31 @@ sudo patronictl -c /etc/patroni/config.yml edit-config
 ```
 
 {% note info %}
+## PgBouncer
+{% endnote %}
+
+#### <span style="color: #0088FF;">安裝</span>
+
+```bash
+sudo apt install -y pgbouncer
+```
+
+```bash
+sudo nano /etc/pgbouncer/pgbouncer.ini
+```
+
+{% gist 552a228dc1abb1a1c91ccadb8f6aa5e8 %}
+
+```bash
+sudo nano /etc/pgbouncer/userlist.txt
+```
+
+```conf /etc/pgbouncer/userlist.txt 範例
+"postgres" "!QAZ2wsx"
+"zabbix" "!QAZ2wsx"
+```
+
+{% note info %}
 ## HAProxy
 {% endnote %}
 
@@ -506,4 +532,18 @@ sudo systemctl restart keepalived
 
 ```bash
 sudo journalctl -u keepalived -f
+```
+
+{% note info %}
+## 重設
+{% endnote %}
+
+```bash
+sudo systemctl stop patroni
+sudo systemctl stop etcd
+
+sudo rm -rf /var/lib/etcd/*
+sudo rm -rf /var/lib/postgresql/data/*
+
+sudo setfacl -m u:postgres:r /etc/etcd/ssl/*
 ```
