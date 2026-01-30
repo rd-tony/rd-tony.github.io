@@ -39,6 +39,8 @@ date: 2026-01-19 18:20:34
     </tr>
 </table>
 
+<!-- more -->
+
 **<span style="color: #0088FF;">PostgreSQL</span>**
 
 <table style="table-layout: fixed; width: 600px;">
